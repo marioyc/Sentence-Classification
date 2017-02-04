@@ -16,16 +16,18 @@ def avg_word2vec(model, dataset='data/snli.test'):
     with open(dataset) as f:
         for line in f:
             avgword2vec = None
+            cont = 0
             for word in line.split():
                 # get embedding (if it exists) of each word in the sentence
                 if word in model.vocab:
+                    cont += 1
                     if avgword2vec is None:
                         avgword2vec = model[word]
                     else:
                         avgword2vec = avgword2vec + model[word]
             # if at least one word in the sentence has a word embeddings :
             if avgword2vec is not None:
-                avgword2vec = avgword2vec / len(avgword2vec)  # normalize sum
+                avgword2vec = avgword2vec / cont  # normalize sum
                 array_sentences.append(line)
                 array_embeddings.append(avgword2vec)
     print 'Generated embeddings for {0} sentences from {1} dataset.'.format(len(array_sentences), dataset)
