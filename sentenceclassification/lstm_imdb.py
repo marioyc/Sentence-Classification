@@ -52,7 +52,7 @@ nhid      = 64 # number of hidden units in the LSTM
 print('\nBuilding model...')
 
 model = Sequential()
-if True: # TODO : Change to "False" to use dropout
+if False: # Change to "False" to use dropout
     model.add(Embedding(vocab_size, embed_dim))
     model.add(LSTM(nhid))
 else:
@@ -102,7 +102,6 @@ plt.plot(range(1,nb_epoch + 1), history.history['loss'], 'b', range(1,nb_epoch +
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
 
 plt.figure(2)
 plt.plot(range(1,nb_epoch + 1), history.history['acc'], 'b', range(1,nb_epoch + 1), history.history['val_acc'], 'r')
