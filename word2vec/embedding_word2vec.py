@@ -19,7 +19,7 @@ def avg_word2vec(model, dataset='data/snli.test'):
             cont = 0
             for word in line.split():
                 # get embedding (if it exists) of each word in the sentence
-                if word in model.vocab:
+                if word in model.wv.vocab:
                     cont += 1
                     if avgword2vec is None:
                         avgword2vec = model[word]
@@ -30,7 +30,7 @@ def avg_word2vec(model, dataset='data/snli.test'):
                 avgword2vec = avgword2vec / cont  # normalize sum
                 array_sentences.append(line)
                 array_embeddings.append(avgword2vec)
-    print 'Generated embeddings for {0} sentences from {1} dataset.'.format(len(array_sentences), dataset)
+    print 'avg_word2vec: Generated embeddings for {0} sentences from {1} dataset.'.format(len(array_sentences), dataset)
     return array_sentences, array_embeddings
 
 
@@ -57,7 +57,7 @@ def most_similar(idx, array_embeddings, array_sentences):
     print '5 most similar sentences:'
     closest_5 = sorted(list_scores.iteritems(), key=itemgetter(1), reverse=True)[:5]
     for i, score in closest_5:
-        print array_sentences[i]#, score
+        print array_sentences[i], score
 
     return closest_idx
 
@@ -79,38 +79,46 @@ def most_5_similar(idx, array_embeddings, array_sentences):
 def IDF(dataset='data/snli.test'):
     # Compute IDF (Inverse Document Frequency). Here a "document" is a sentence.
     # word2idf['peach'] = IDF(peach)
-    word2idf = {}
+    df = {}
+    N = 0
     with open(dataset) as f:
         for line in f:
+            N += 1
             sentence = line.split()
+            sentence = np.unique(sentence)
             for word in sentence:
-                break
-    assert len(word2idf)>0, "The IDF function has not been implemented yet"
+                if word in df:
+                    df[word] += 1
+                else:
+                    df[word] = 1
+
+    word2idf = {}
+    for k,v in df.iteritems():
+        word2idf[k] = np.log(float(N) / v)
+
     return word2idf
 
 def avg_word2vec_idf(model, word2idf, dataset='data/snli.test'):
-    # TODO : Modify this to have a weighted (idf weights) average of the word vectors
     array_sentences = []
     array_embeddings = []
     with open(dataset) as f:
         for line in f:
             avgword2vec = None
+            sumidf = 0
             for word in line.split():
                 # get embedding (if it exists) of each word in the sentence
-                if word in model.vocab:
+                if word in model.wv.vocab:
+                    sumidf += word2idf[word]
                     if avgword2vec is None:
-                        # TODO : ADD WEIGHTS
-                        avgword2vec = model[word]
+                        avgword2vec = word2idf[word] * model[word]
                     else:
-                        # TODO : ADD WEIGHTS
-                        avgword2vec = avgword2vec + model[word]
+                        avgword2vec = avgword2vec + word2idf[word] * model[word]
             # if at least one word in the sentence has a word embeddings :
             if avgword2vec is not None:
-                # TODO : NORMALIZE BY THE SUM OF THE WEIGHTS
-                avgword2vec = avgword2vec / len(avgword2vec)  # normalize sum
+                avgword2vec = avgword2vec / sumidf  # normalize sum
                 array_sentences.append(line)
                 array_embeddings.append(avgword2vec)
-    print 'Generated embeddings for {0} sentences from {1} dataset.'.format(len(array_sentences), dataset)
+    print 'avg_word2vec_idf: Generated embeddings for {0} sentences from {1} dataset.'.format(len(array_sentences), dataset)
     return array_sentences, array_embeddings
 
 if __name__ == "__main__":
@@ -123,68 +131,76 @@ if __name__ == "__main__":
         model = word2vec.Word2Vec(sentences, size=embedding_size)
 
         # Train a word2vec model with phrases
-        # bigram_transformer = gensim.models.Phrases(sentences)
-        # model_phrase = Word2Vec(bigram_transformer[sentences], size=200)
-
-    if True: # SECOND PART
-
-        """
-        Investigating word2vec word embeddings space
-        """
+        bigram_transformer = gensim.models.Phrases(sentences)
+        model_phrase = Word2Vec(bigram_transformer[sentences], size=200)
+    else:
         # Loading model trained on words
         model = word2vec.Word2Vec.load('models/text8.model')
 
         # Loading model enhanced with phrases (2-grams)
         model_phrase = word2vec.Word2Vec.load('models/text8.phrase.model')
 
-        # Words that are similar are close in the sense of the cosine similarity.
-        sim = model.similarity('woman', 'man')
-        print 'Printing word similarity between "woman" and "man" : {0}'.format(sim)
+    """
+    SECOND PART: Investigating word2vec word embeddings space
+    """
 
-        sim = model.similarity('apple', 'mac')
-        print 'Printing word similarity between "apple" and "mac" : {0}'.format(sim)
+    # Words that are similar are close in the sense of the cosine similarity.
+    sim = model.similarity('woman', 'man')
+    print 'Printing word similarity between "woman" and "man" : {0}'.format(sim)
 
-        sim = model.similarity('apple', 'peach')
-        print 'Printing word similarity between "apple" and "peach" : {0}'.format(sim)
+    sim = model.similarity('apple', 'mac')
+    print 'Printing word similarity between "apple" and "mac" : {0}'.format(sim)
 
-        sim = model.similarity('banana', 'peach')
-        print 'Printing word similarity between "banana" and "peach" : {0}'.format(sim)
+    sim = model.similarity('apple', 'peach')
+    print 'Printing word similarity between "apple" and "peach" : {0}'.format(sim)
 
-        # And words that appear in the same context have similar word embeddings.
-        model.most_similar(['paris'])[0]
-        model_phrase.most_similar(['paris'])[0]
+    sim = model.similarity('banana', 'peach')
+    print 'Printing word similarity between "banana" and "peach" : {0}'.format(sim)
 
-        print model.most_similar(['difficult'])
-        print model_phrase.most_similar(['difficult'])
+    # And words that appear in the same context have similar word embeddings.
+    print model.most_similar(['paris'])[0]
+    print model_phrase.most_similar(['paris'])[0]
 
-        # Compositionality and structure in word2vec space
-        model.most_similar(positive=['woman', 'king'], negative=['man'])
+    print model.most_similar(['difficult'])
+    print model_phrase.most_similar(['difficult'])
 
-        print model.most_similar(positive=['france', 'berlin'], negative=['germany'])
+    print model_phrase.most_similar(['clinton'])[:3]
 
+    # Compositionality and structure in word2vec space
+    print model.most_similar(positive=['woman', 'king'], negative=['man'])[0]
 
-    if True: # THIRD PART
-        """
-        Sentence embeddings with average(word2vec)
-        """
-        data_path = 'data/snli.test'
-        array_sentences, array_embeddings = avg_word2vec(model, dataset=data_path)
+    print model.most_similar(positive=['france', 'berlin'], negative=['germany'])[0]
 
-        query_idx =  777 # random sentence
-        assert query_idx < len(array_sentences) # little check
+    """
+    THIRD PART: Sentence embeddings with average(word2vec)
+    """
+    data_path = 'data/snli.test'
+    array_sentences, array_embeddings = avg_word2vec(model, dataset=data_path)
 
-        # array_sentences[closest_idx] will be the closest sentence to array_sentences[query_idx].
-        closest_idx = most_similar(query_idx, array_embeddings, array_sentences)
+    query_idx =  777 # random sentence
+    assert query_idx < len(array_sentences) # little check
 
-        closest_5_idx = most_5_similar(query_idx, array_embeddings, array_sentences)
+    # array_sentences[closest_idx] will be the closest sentence to array_sentences[query_idx].
+    closest_idx = most_similar(query_idx, array_embeddings, array_sentences)
 
-        for idx in closest_5_idx:
-            print array_sentences[idx]
+    closest_5_idx = most_5_similar(query_idx, array_embeddings, array_sentences)
 
-    if False: # FOURTH PART
-        #######
-        # Weighted average of word vectors with IDF.
-        #######
-        word2idf = IDF(data_path)
-        array_sentences_idf, array_embeddings_idf = avg_word2vec_idf(model, word2idf, dataset=data_path)
-        closest_idx_idf = most_similar(query_idx, array_embeddings_idf, array_sentences_idf)
+    print 'Most 5 similar:\n'
+    for idx in closest_5_idx:
+        print array_sentences[idx]
+
+    """
+    FOURTH PART: Weighted average of word vectors with IDF.
+    """
+    word2idf = IDF(data_path)
+
+    words = ['the', 'a' , 'clinton', 'woman', 'man', 'apple', 'peach', 'banana', 'mac', 'paris', 'france']
+
+    for word in words:
+        if word in word2idf:
+            print word, word2idf[word]
+        else:
+            print word, "not found"
+
+    array_sentences_idf, array_embeddings_idf = avg_word2vec_idf(model, word2idf, dataset=data_path)
+    closest_idx_idf = most_similar(query_idx, array_embeddings_idf, array_sentences_idf)
