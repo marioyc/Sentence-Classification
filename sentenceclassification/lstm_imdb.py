@@ -15,6 +15,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Embedding, LSTM, SimpleRNN, GRU
 from utils import load_imdb
 
+import matplotlib.pyplot as plt
+
 ##########################
 ## Preparing data
 ##########################
@@ -88,11 +90,26 @@ print('Compiled model')
 ##########################
 validation_split =  0.2 # Held-out ("validation") data to test on.
 batch_size       =  32  # size of the minibach (each batch will contain 32 sentences)
+nb_epoch         =  6
 
 # history is just an object that contains information about training.
 # Look at the following line and enjoy how simple it is to train a neural network in Keras.
 print('\n\nStarting training of the model\n')
-history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=6, validation_split=validation_split)
+history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch, validation_split=validation_split)
+
+plt.figure(1)
+plt.plot(range(1,nb_epoch + 1), history.history['loss'], 'b', range(1,nb_epoch + 1), history.history['val_loss'], 'r')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
+
+plt.figure(2)
+plt.plot(range(1,nb_epoch + 1), history.history['acc'], 'b', range(1,nb_epoch + 1), history.history['val_acc'], 'r')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
 
 ##########################
 ## Evaluate on test set
