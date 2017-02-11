@@ -21,6 +21,8 @@ from keras.layers import Dense, Dropout, Activation, Embedding, LSTM, SimpleRNN,
 from keras.layers import Convolution1D, GlobalMaxPooling1D
 from utils import load_imdb
 
+import matplotlib.pyplot as plt
+
 ##########################
 ## Preparing data
 ##########################
@@ -106,9 +108,24 @@ print('Built model')
 ##########################
 validation_split =  0.2 # Held-out ("validation") data to test on.
 batch_size       =  32  # size of the minibach (each batch will contain 32 sentences)
+nb_epoch         =  6
 
 print('\n\nStarting training of the model\n')
-history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=6, validation_split=0.2)
+history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch, validation_split=0.2)
+
+plt.figure(1)
+plt.subplot(1,2,1)
+plt.plot(range(1,nb_epoch + 1), history.history['loss'], 'b', range(1,nb_epoch + 1), history.history['val_loss'], 'r')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+
+plt.subplot(1,2,2)
+plt.plot(range(1,nb_epoch + 1), history.history['acc'], 'b', range(1,nb_epoch + 1), history.history['val_acc'], 'r')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
 
 ##########################
 ## Evaluate on test set
