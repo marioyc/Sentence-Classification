@@ -161,6 +161,23 @@ if __name__ == "__main__":
     print model.most_similar(['paris'])[0]
     print model_phrase.most_similar(['paris'])[0]
 
+    words = ['apple', 'peach', 'banana', 'car']
+
+    for word in words:
+        print word
+        print model.most_similar([word])
+
+    print "science - scientist + mathematician"
+    print model.most_similar(positive=['science', 'mathematician'], negative=['scientist'])[0]
+    print "science - scientist + physicist"
+    print model.most_similar(positive=['science', 'physicist'], negative=['scientist'])[0]
+    print "science - scientist + philosopher"
+    print model.most_similar(positive=['science', 'philosopher'], negative=['scientist'])[0]
+    print "science - scientist + astronomer"
+    print model.most_similar(positive=['science', 'astronomer'], negative=['scientist'])[0]
+    print "science - scientist + biologist"
+    print model.most_similar(positive=['science', 'biologist'], negative=['scientist'])[0]
+
     print model.most_similar(['difficult'])
     print model_phrase.most_similar(['difficult'])
 

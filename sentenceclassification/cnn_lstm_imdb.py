@@ -10,6 +10,7 @@ from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Embedding, LSTM, SimpleRNN, GRU
 from keras.layers import Convolution1D
+from keras.optimizers import SGD, Adam
 from utils import load_imdb
 
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ model = Sequential()
 model.add(Embedding(vocab_size,
                     embed_dim,
                     input_length=maxlen,
-                    dropout=0.2))
+                    dropout=0.3))
 model.add(Convolution1D(nb_filter=nb_filter,
                         filter_length=filter_length,
                         border_mode='valid',
