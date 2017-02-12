@@ -9,7 +9,7 @@ np.random.seed(1234)  # for reproducibility (manually setting random seed)
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Embedding, LSTM, SimpleRNN, GRU
-from keras.layers import Convolution1D, GlobalMaxPooling1D
+from keras.layers import Convolution1D
 from utils import load_imdb
 
 import matplotlib.pyplot as plt
@@ -34,7 +34,7 @@ print('X_test shape:', X_test.shape)
 ##########################
 ## Building model
 ##########################
-embed_dim = 16
+embed_dim = 25
 nhid      = 128
 nb_filter = 250
 filter_length = 3
@@ -54,7 +54,7 @@ model.add(Convolution1D(nb_filter=nb_filter,
 model.add(LSTM(nhid, dropout_W=0.2, dropout_U=0.2))
 
 model.add(Dense(hidden_dims))
-model.add(Dropout(0.2))
+model.add(Dropout(0.5))
 model.add(Activation('relu'))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
@@ -79,8 +79,8 @@ print('Built model')
 ## Train Model
 ##########################
 validation_split =  0.2 # Held-out ("validation") data to test on.
-batch_size       =  32  # size of the minibach (each batch will contain 32 sentences)
-nb_epoch         =  6
+batch_size       =  64  # size of the minibach (each batch will contain 32 sentences)
+nb_epoch         =  7
 
 print('\n\nStarting training of the model\n')
 history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch, validation_split=0.2)
