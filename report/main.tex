@@ -250,7 +250,11 @@ ENS Cachan / Ecole Polytechnique\\
     \item
     Explain what is the difference between SGD and Adam.
 
-    %TODO
+    The difference is that Adam uses an exponentially
+    decaying average of the past gradients and also divides this by another similarly
+    calculated average, but this time of the sum of squares of the terms in the
+    gradient, which has the effect of decreasing the learning rate of the parameters
+    that have been updated the most.
 \end{enumerate}
 
 \section{Simple ConvNet for Sequence Classification}
