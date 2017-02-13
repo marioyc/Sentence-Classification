@@ -86,10 +86,15 @@ ENS Cachan / Ecole Polytechnique\\
         Closest word to difficult for model\_phrase: very\_difficult
 
         \item
-        Difference between model and model\_phrase: %TODO
+        Difference between model and model\_phrase: model\_phrase was trained after
+        preprocessing the tokens of the sentences in the corpus to group the ones
+        that commonly occur together in phrases, model in contrast was trained
+        directly on the individual tokens.
 
         \item
-        Three phrases that are closest to clinton: bush, reagan, gore
+        Three phrases that are closest to clinton: bush, reagan and gore are the top
+        and consist of only one token, the top consisting of two tokens are
+        bill\_clinton, w\_bush and al\_gore.
     \end{itemize}
 
     \item
@@ -98,6 +103,7 @@ ENS Cachan / Ecole Polytechnique\\
 
     The closest word is 'paris' with similarity measure of 0.757699728012085
 
+\newpage
     \item
     Explore the embedding space using these functions and report some interesting
     behaviour (of your choice)
@@ -206,19 +212,22 @@ ENS Cachan / Ecole Polytechnique\\
     the classifier is thus computed as $f(h_1, \ldots, h_T)$. What is the exact
     form of $f(h_1, \ldots, h_T)$ used in the python script?
 
-    %TODO
+    Keras implements LSTM according to the following recurrent formulas:
+
+    \begin{center}
+        $f_t = \sigma(W_f x_t + U_f h_{t - 1} + b_f), i_t = \sigma(W_i x_t + U_i h_{t - 1} + b_i)$
+
+        $C_t = f_t C_{t - 1} + i_t \tanh(W_c x_t + U_c h_{t - 1} + b_c)$
+
+        $o_t = \sigma(W_o x_t + U_o h_{t - 1} + b_o), h_t = o_t \tanh(C_t)$
+    \end{center}
+
+    If the flag return\_sequences is set to False (which is the default) then
+    $f(h_1,\ldots,h_T) = h_T$, if it is True then $f(h_1,\ldots,h_T) = [h_1; \ldots; h_T]$.
 
     \item
     Plot the evolution of the train and valid accuracy per epoch, and write the
     test errors that you obtain.
-
-    \begin{itemize}
-        \item
-        Results without dropout: loss = 0.656337736861, error = 18.0866666698\%
-
-        \item
-        Results with dropout: loss = 0.377996407843, error = 16.606666666699998\%
-    \end{itemize}
 
     \begin{figure}[ht]
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{img/lstm_no_dropout_loss_acc.png}
@@ -230,13 +239,20 @@ ENS Cachan / Ecole Polytechnique\\
     \caption{Evolution of the loss and accuracy with dropout.}
     \end{figure}
 
+    \begin{itemize}
+        \item
+        Results without dropout: loss = 0.656337736861, error = 18.0866666698\%
+
+        \item
+        Results with dropout: loss = 0.377996407843, error = 16.606666666699998\%
+    \end{itemize}
+
     \item
     Explain what is the difference between SGD and Adam.
 
     %TODO
 \end{enumerate}
 
-\newpage
 \section{Simple ConvNet for Sequence Classification}
 
 \begin{enumerate}

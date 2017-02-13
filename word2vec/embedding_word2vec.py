@@ -181,7 +181,7 @@ if __name__ == "__main__":
     print model.most_similar(['difficult'])
     print model_phrase.most_similar(['difficult'])
 
-    print model_phrase.most_similar(['clinton'])[:3]
+    print model_phrase.most_similar(['clinton'])
 
     # Compositionality and structure in word2vec space
     print model.most_similar(positive=['woman', 'king'], negative=['man'])[0]
